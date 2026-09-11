@@ -11,8 +11,12 @@ mvp/report*.md
 
 # 凭据（绝不可提交）
 .token
+.token*
 *.token
 .env
+*token*.txt
+*secret*
+push_via_api.local.py
 
 # 配置（含密钥，提交前务必脱敏）
 # mvp/config.json   ← 请勿提交含真实 key 的配置！建议保留 config.example.json

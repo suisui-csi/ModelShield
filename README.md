@@ -5,6 +5,29 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Corpus](https://img.shields.io/badge/攻击语料-71条-orange)](mvp/attack_corpus.json)
+[![Repo](https://img.shields.io/badge/GitHub-suisui--csi%2FModelShield-black)](https://github.com/suisui-csi/ModelShield)
+
+## 📊 实测效果（可复现）
+
+对同一批次 **71 条攻击**，分别测试"无防护"与"加了护栏"两种 AI 客服：
+
+| 被测目标 | 攻破数 | 安全评分 | 风险等级 |
+|---|---|---|---|
+| ❌ 裸奔版 AI 客服 | **43 / 71** | **36 / 100** | 🔴 高风险 |
+| ✅ 加固版 AI 客服 | **0 / 71** | **100 / 100** | 🟢 低风险 |
+
+分类命中率（裸奔版）：
+
+| 攻击类别 | 命中率 |
+|---|---|
+| 提示词注入 | 92% |
+| 越狱绕过 | 83% |
+| 敏感信息泄露 | 75% |
+| 有害内容输出 | 55% |
+| 工具滥用/过度代理 | 50% |
+
+> 复现命令见下方「快速开始」的离线演示——**不需要任何 API Key**。
 
 ## ✨ 它能做什么
 
