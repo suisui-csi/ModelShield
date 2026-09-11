@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 运行产物（勿提交 API Key 与测试结果）
+mvp/results*.jsonl
+mvp/report*.md
+*.log
+
+# 凭据（绝不可提交）
+.token
+*.token
+.env
+
+# 配置（含密钥，提交前务必脱敏）
+# mvp/config.json   ← 请勿提交含真实 key 的配置！建议保留 config.example.json
+mvp/config.json
+
+# IDE / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
