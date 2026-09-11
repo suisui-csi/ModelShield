@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-模盾 ModelShield · 红队引擎 v0.2
-作用：批量把攻击语料发给被测目标（API 大模型 / 本地模拟靶子），收集原始响应。
+ModelShield（AI Security Project）· 红队引擎 v0.2
+作用：批量把攻击语料发给被测大模型/智能体，收集原始响应作为证据链。
 
 用法:
   真实 API 目标:
@@ -74,7 +74,7 @@ def run_single_attack(target, prompt, timeout=90, max_retries=2):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="模盾红队引擎")
+    ap = argparse.ArgumentParser(description="ModelShield 红队引擎")
     ap.add_argument("--config", default="config.json")
     ap.add_argument("--corpus", default="attack_corpus.json")
     ap.add_argument("--out", default="results.jsonl")
@@ -90,9 +90,10 @@ def main():
         corpus = corpus[: args.limit]
 
     target = build_target(cfg, args.mock, args.hardened)
-    tgt_desc = "本地模拟靶子(加固版)" if (args.mock and args.hardened) else \
-               "本地模拟靶子(裸奔版)" if args.mock else \
-               f"{cfg['target'].get('base_url')} / {cfg['target'].get('model')}"
+    if args.mock:
+        tgt_desc = "本地模拟靶子（加固版）" if args.hardened else "本地模拟靶子（裸奔版）"
+    else:
+        tgt_desc = f"{cfg['target'].get('base_url')} / {cfg['target'].get('model')}"
 
     print(f"[*] 目标: {tgt_desc}")
     print(f"[*] 攻击总数: {len(corpus)}\n")

@@ -9,6 +9,7 @@
 前提：token 放在 D:\\ModelShield\\.token
 """
 import base64
+import argparse
 import json
 import os
 import subprocess
@@ -71,6 +72,11 @@ def read_b64(path):
 
 
 def main():
+    ap = argparse.ArgumentParser(description="Push this repository through the GitHub API")
+    ap.add_argument("--prune", action="store_true",
+                    help="replace the whole remote tree (delete remote files that no longer exist locally)")
+    args = ap.parse_args()
+
     token = read_token()
     print("[*] 校验 Token ...")
     me = api("GET", "/user", token)
@@ -130,8 +136,12 @@ def main():
                            "type": "blob", "sha": blob["sha"]})
         print(f"    + {f}")
 
-    tree = api("POST", f"/repos/{repo}/git/trees", token,
-               {"base_tree": base_tree, "tree": tree_items})
+    tree_payload = {"tree": tree_items}
+    if args.prune:
+        print("[*] prune mode: remote tree will match the local file set exactly")
+    else:
+        tree_payload["base_tree"] = base_tree
+    tree = api("POST", f"/repos/{repo}/git/trees", token, tree_payload)
     commit = api("POST", f"/repos/{repo}/git/commits", token,
                  {"message": COMMIT_MSG, "tree": tree["sha"], "parents": [parent_sha]})
     api("PATCH", f"/repos/{repo}/git/refs/heads/{branch}", token,

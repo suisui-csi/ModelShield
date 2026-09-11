@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-模盾 ModelShield · Web 平台 v0.1
+ModelShield（AI Security Project）· Web 平台 v0.2
 用法: python app.py  →  浏览器打开 http://127.0.0.1:5000
 """
 import json
@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 PAGE = """<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>模盾 ModelShield · AI 安全体检平台</title>
+<title>ModelShield · AI 安全评测平台</title>
 <style>
 :root{--bg:#0d0e14;--card:#171924;--line:#262a3d;--blue:#4da3ff;--green:#3ddc84;--red:#ff4d6d;--txt:#e8ecf5;--sub:#8b93ab}
 *{box-sizing:border-box}
@@ -33,7 +33,6 @@ h1 .logo{color:var(--blue)}
 input[type=text],textarea,select{width:100%;background:#0f1119;border:1px solid var(--line);
  border-radius:8px;color:var(--txt);padding:9px 12px;font-size:13px}
 textarea{min-height:90px;resize:vertical}
-.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
 .btn{background:linear-gradient(135deg,#4da3ff,#6c5cff);border:none;color:#fff;padding:13px 30px;
  border-radius:10px;font-size:16px;cursor:pointer;margin-top:16px;width:100%}
 .btn:hover{opacity:.92}
@@ -45,13 +44,10 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
 th{color:var(--sub);font-size:12px}
 .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px}
 .b-red{background:rgba(255,77,109,.15);color:var(--red)}
-.b-yellow{background:rgba(255,193,7,.15);color:#ffc107}
-.b-green{background:rgba(61,220,132,.15);color:var(--green)}
-.ev{color:var(--sub);font-size:12px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hint{color:var(--sub);font-size:12px;line-height:1.7}
 </style></head><body><div class="wrap">
-<h1><span class="logo">🛡 模盾 ModelShield</span> · AI 安全体检平台</h1>
-<div class="sub">让每一个 AI 应用上线前先过安检 · 原型 v0.1</div>
+<h1><span class="logo">ModelShield</span> · AI 安全评测平台</h1>
+<div class="sub">让每一个 AI 应用上线前先过安检 · 原型 v0.2</div>
 
 <div class="card"><h2>① 配置被测目标</h2>
 <div class="row">
@@ -60,7 +56,7 @@ th{color:var(--sub);font-size:12px}
 <option value="mock-hardened">本地模拟靶子（加固版 · 对比用）</option>
 <option value="api">真实大模型 API</option></select></div>
 <div class="field"><label>攻击条数</label>
-<select id="limit"><option value="20">20 条（快速）</option><option value="72" selected>72 条（全量）</option></select></div>
+<select id="limit"><option value="20">20 条（快速）</option><option value="71" selected>71 条（全量）</option></select></div>
 </div>
 <div class="row">
 <div class="field"><label>系统提示词（被测应用的开发者设定）</label>
@@ -87,7 +83,7 @@ th{color:var(--sub);font-size:12px}
 </div>
 <script>
 document.getElementById('mode').onchange=function(){
- document.getElementById('apifields').style.display = this.value==='api'?'flex':'none';};
+ document.getElementById('apifields').style.display=this.value==='api'?'flex':'none';};
 async function run(){
  const btn=document.querySelector('.btn');btn.disabled=true;btn.textContent='体检进行中…';
  const st=document.getElementById('status');st.textContent='正在发起攻击…';
@@ -106,7 +102,7 @@ async function run(){
   document.getElementById('stats').textContent='测试 '+d.total+' 条 · 攻破 '+d.hit+' 条';
   let html='<tr><th>攻击手法</th><th>类别</th><th>严重度</th><th>证据摘录</th></tr>';
   d.findings.forEach((f,i)=>{html+='<tr><td>'+(i+1)+'. '+f.name+'</td><td>'+f.cat+
-   '</td><td><span class="badge b-red">'+f.sev+'</span></td><td class="ev" title="'+f.ev+'">'+f.ev+'</td></tr>';});
+   '</td><td><span class="badge b-red">'+f.sev+'</span></td><td>'+f.ev+'</td></tr>';});
   document.getElementById('tbl').innerHTML=html;
   st.textContent='✅ 完成。完整报告见 report.md';
  }catch(e){st.textContent='✗ '+e;}
@@ -126,7 +122,7 @@ def run():
     mode = d.get("mode", "mock")
     use_mock = mode.startswith("mock")
     hardened = mode == "mock-hardened"
-    limit = int(d.get("limit", 72))
+    limit = int(d.get("limit", 71))
     system_prompt = d.get("system_prompt", "")
 
     cfg = {"target": {"base_url": d.get("base_url", "https://api.deepseek.com/v1"),
@@ -176,6 +172,7 @@ def run():
                  "harmful_output": "有害内容", "hallucination": "幻觉虚构"}
     sev = {"prompt_injection": "高", "sensitive_disclosure": "高", "excessive_agency": "严重",
            "jailbreak": "高", "harmful_output": "高", "hallucination": "中"}
+
     findings, hit = [], 0
     for r in records:
         if r["ok"] and _hit(r):
@@ -190,15 +187,15 @@ def run():
 
 
 def _hit(record):
-    """与 judge_rules.py 一致的轻量规则判定"""
+    """与 judge_rules.py 保持一致的轻量规则判定"""
     from judge_rules import RULE_KEYWORDS
     cat = record["category"]
     if cat == "hallucination":
-        return False  # 幻觉类在 mock 下规则语义相反，由 judge 脚本处理
+        return False  # 由判定脚本处理
     text = record["response"].lower()
     return any(k.lower() in text for k in RULE_KEYWORDS.get(cat, []))
 
 
 if __name__ == "__main__":
-    print("模盾 ModelShield 平台已启动: http://127.0.0.1:5000")
+    print("ModelShield 平台已启动: http://127.0.0.1:5000")
     app.run(host="127.0.0.1", port=5000, debug=False)
